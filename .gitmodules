@@ -1,6 +1,1 @@
-[submodule "LonganWANG"]
-	path = LonganWANG
-	url = https://github.com/LonganWANG-cs/GSVC.git
-[submodule "KMPCompress"]
-	path = KMPCompress
-	url = https://github.com/kmayerpatel/comp590videocompression.git
+
