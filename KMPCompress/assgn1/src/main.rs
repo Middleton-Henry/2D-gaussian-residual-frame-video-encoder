@@ -54,6 +54,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         &mut output_file_path,
     );
 
+    use std::fs::create_dir_all;
+
+    create_dir_all("residuals")?;
+
     // Run an FFmpeg command to decode video from inptu_file_path
     // Get output as grayscale (i.e., just the Y plane)
 
@@ -117,6 +121,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         } else if frame.frame_num < skip_count + count {
             let current_frame: Vec<u8> = frame.data; // <- raw pixel y values
 
+            let mut residual_frame = vec![0u8; (width * height) as usize];
+
             let bits_written_at_start = enc.bits_written();
 
             // Process pixels in row major order.
@@ -131,12 +137,45 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         + 256)
                         % 256;
 
+                    // NEW: store residual pixel
+                    residual_frame[pixel_index] = pixel_difference as u8;
+
+                    enc.encode(&pixel_difference, &pixel_difference_pdf, &mut bw);
+                    pixel_difference_pdf.incr_count(&pixel_difference);
+
+
+
                     enc.encode(&pixel_difference, &pixel_difference_pdf, &mut bw);
 
                     // Update context
                     pixel_difference_pdf.incr_count(&pixel_difference);
                 }
             }
+
+            
+            use std::io::Write;
+
+            use std::process::{Command, Stdio};
+
+            let mut child = Command::new("ffmpeg")
+                .args([
+                    "-f", "rawvideo",
+                    "-pixel_format", "gray8",
+                    "-video_size", &format!("{}x{}", width, height),
+                    "-i", "-",                      // read from stdin
+                    "-frames:v", "1",
+                    &format!("residuals/frame_{:05}.png", frame.frame_num),
+                ])
+                .stdin(Stdio::piped())
+                .spawn()?;
+
+            child.stdin
+                .as_mut()
+                .unwrap()
+                .write_all(&residual_frame)?;
+
+            child.wait()?;
+
 
             prior_frame = current_frame;
 
