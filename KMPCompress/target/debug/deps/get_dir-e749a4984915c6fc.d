@@ -1,0 +1,10 @@
+/Users/middleton/2D-gaussian-residual-frame-video-encoder/KMPCompress/target/debug/deps/get_dir-e749a4984915c6fc.d: /Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/lib.rs /Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/structs/mod.rs /Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/structs/target/mod.rs /Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/structs/target/dir.rs /Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/structs/target/file.rs /Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/util/mod.rs
+
+/Users/middleton/2D-gaussian-residual-frame-video-encoder/KMPCompress/target/debug/deps/libget_dir-e749a4984915c6fc.rmeta: /Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/lib.rs /Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/structs/mod.rs /Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/structs/target/mod.rs /Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/structs/target/dir.rs /Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/structs/target/file.rs /Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/util/mod.rs
+
+/Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/lib.rs:
+/Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/structs/mod.rs:
+/Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/structs/target/mod.rs:
+/Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/structs/target/dir.rs:
+/Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/structs/target/file.rs:
+/Users/middleton/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/get_dir-0.5.0/src/util/mod.rs:

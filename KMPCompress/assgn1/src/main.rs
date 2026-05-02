@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut report = true;
     let mut check_decode = false;
     let mut skip_count = 0;
-    let mut count = 10;
+    let mut count = 20;
 
     let mut data_folder_path = get_workspace_root();
     data_folder_path.push("data");
@@ -56,6 +56,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     use std::fs::create_dir_all;
 
+    use std::process::Command;
+    use std::process::Stdio;
+
+    
+
     create_dir_all("residuals")?;
 
     // Run an FFmpeg command to decode video from inptu_file_path
@@ -72,6 +77,43 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Figure out geometry of frame.
     let mut width = 0;
     let mut height = 0;
+
+    // NEW VIDEO REBUILDING: Before the frame loop, spawn a single ffmpeg process
+
+    let metadata = iter.collect_metadata()?;
+    for i in 0..metadata.output_streams.len() {
+        match &metadata.output_streams[i].type_specific_data {
+            Video(vid_stream) => {
+                width = vid_stream.width;
+                height = vid_stream.height;
+                if verbose {
+                    println!("Found video stream at output stream index {} with dimensions {} x {}", i, width, height);
+                }
+                break;
+            }
+            _ => (),
+        }
+    }
+    assert!(width != 0);
+    assert!(height != 0);
+
+    let mut residual_video_child = Command::new("ffmpeg")
+    .args([
+        "-f", "rawvideo",
+        "-pixel_format", "gray8",
+        "-video_size", &format!("{}x{}", width, height),
+        "-framerate", "24",
+        "-i", "-",
+        "-c:v", "libx264",
+        "-crf", "0",
+        "-y",
+        "residuals/residuals.mp4",
+    ])
+    .stdin(Stdio::piped())
+    .spawn()?;
+
+    let residual_stdin = residual_video_child.stdin.as_mut().unwrap();
+    
 
     let metadata = iter.collect_metadata()?;
     for i in 0..metadata.output_streams.len() {
@@ -112,6 +154,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Set up arithmetic coding context(s)
     let mut pixel_difference_pdf = VectorCountSymbolModel::new((0..=255).collect());
 
+    
+
     // Process frames
     for frame in iter.filter_frames() {
         if frame.frame_num < skip_count {
@@ -138,24 +182,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         % 256;
 
                     // NEW: store residual pixel
-                    residual_frame[pixel_index] = pixel_difference as u8;
+                    //residual_frame[pixel_index] = pixel_difference as u8;
+
+                    // Scale residual for better visualization
+                    let signed_diff = if pixel_difference > 127 {
+                        pixel_difference as i16 - 256
+                    } else {
+                        pixel_difference as i16
+                    };
+
+                    let scaled_residual = (signed_diff + 128).clamp(0, 255) as u8;
+                    
+                    
+                    residual_frame[pixel_index] = scaled_residual;
+
+
+
+                    
+
+                    
 
                     enc.encode(&pixel_difference, &pixel_difference_pdf, &mut bw);
                     pixel_difference_pdf.incr_count(&pixel_difference);
 
 
 
-                    enc.encode(&pixel_difference, &pixel_difference_pdf, &mut bw);
+                    //Why is this here twice???
+                    //enc.encode(&pixel_difference, &pixel_difference_pdf, &mut bw);
 
                     // Update context
-                    pixel_difference_pdf.incr_count(&pixel_difference);
+                    //pixel_difference_pdf.incr_count(&pixel_difference);
                 }
             }
 
+            //NEW VIDEO REBUILDER:
+            residual_stdin.write_all(&residual_frame)?;
             
-            use std::io::Write;
-
-            use std::process::{Command, Stdio};
 
             let mut child = Command::new("ffmpeg")
                 .args([
@@ -191,7 +253,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         } else {
             break;
         }
+
+        
     }
+
+    drop(residual_video_child.stdin.take());
+    residual_video_child.wait()?;
 
     // Tie off arithmetic encoder and flush to file.
     enc.finish(&mut bw)?;

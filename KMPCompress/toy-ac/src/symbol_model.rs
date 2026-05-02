@@ -58,7 +58,9 @@ impl<T: std::cmp::Eq> VectorCountSymbolModel<T> {
         // This should be made configurable, but for now just hard coding
         // so that no interval can get smaller than 1/N shown below.
 
-        while self.total >= 1000000 {    
+        //while self.total >= 1000000 {
+        //NEW: Smaller Range
+        while self.total >= 1 << 15{
             self.norm_count += 1;
 
             let mut new_total = 0;
